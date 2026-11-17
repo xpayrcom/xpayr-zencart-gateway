@@ -59,7 +59,12 @@ if (!is_string($raw) || trim($raw) === '') {
 }
 
 $secret = trim((string) xpayr_cfg('MODULE_PAYMENT_XPAYR_WEBHOOK_SECRET', ''));
-if ($secret !== '') {
+if ($secret === '') {
+    // Fail closed: never accept an unsigned webhook.
+    xpayr_log('Webhook rejected: no webhook secret configured', true);
+    xpayr_json_response(503, ['ok' => false, 'error' => 'webhook_secret_not_configured']);
+}
+{
     $headerSig = isset($_SERVER['HTTP_X_XPAYR_SIGNATURE']) ? trim((string) $_SERVER['HTTP_X_XPAYR_SIGNATURE']) : '';
     if (strpos($headerSig, 'sha256=') === 0) {
         $headerSig = substr($headerSig, 7);

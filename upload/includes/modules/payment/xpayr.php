@@ -272,6 +272,10 @@ class xpayr
     function update_status()
     {
         global $order, $db;
+        if (!defined('MODULE_PAYMENT_XPAYR_WEBHOOK_SECRET') || trim((string) MODULE_PAYMENT_XPAYR_WEBHOOK_SECRET) === '') {
+            $this->enabled = false; // no webhook secret → cannot verify payments → not offered
+            return;
+        }
 
         if (!defined('MODULE_PAYMENT_XPAYR_ZONE')) {
             return;
